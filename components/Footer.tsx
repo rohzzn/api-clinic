@@ -6,23 +6,17 @@ export default function Footer() {
   const [visits, setVisits] = useState(0)
 
   useEffect(() => {
+    // First get the initial count
+    fetch('/api/visits')
+      .then(res => res.json())
+      .then(data => setVisits(data.visits))
+    
+    // Then setup SSE for live updates
     const eventSource = new EventSource('/api/visits')
-
+    
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)
       setVisits(data.visits)
-    }
-
-    eventSource.onerror = (error) => {
-      console.error('EventSource failed:', error)
-      eventSource.close()
-      
-      // Try to reconnect after 5 seconds
-      setTimeout(() => {
-        const newEventSource = new EventSource('/api/visits')
-        newEventSource.onmessage = eventSource.onmessage
-        newEventSource.onerror = eventSource.onerror
-      }, 5000)
     }
 
     return () => {

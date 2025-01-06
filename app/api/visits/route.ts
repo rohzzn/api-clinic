@@ -1,48 +1,41 @@
 import { NextResponse } from 'next/server'
 
-// Force edge runtime
-export const runtime = 'edge'
-export const dynamic = 'force-dynamic'
-
-// These are maintained in Edge runtime's memory
 let visits = 0
-const clients = new Set<ReadableStreamDefaultController>()
+const clients = new Map()
 
-function sendVisitsToAll() {
-  for (const client of clients) {
-    try {
-      client.enqueue(`data: ${JSON.stringify({ visits })}\n\n`)
-    } catch (error) {
-      clients.delete(client)
-    }
+export async function GET(request: Request) {
+  // Regular API request to get current count
+  if (request.headers.get('accept') !== 'text/event-stream') {
+    return NextResponse.json({ visits })
   }
-}
 
-export async function GET() {
-  let streamController: ReadableStreamDefaultController | null = null;
-
+  // SSE connection
   const stream = new ReadableStream({
-    start: async (controller) => {
-      streamController = controller;
-      clients.add(controller)
-      controller.enqueue(`data: ${JSON.stringify({ visits })}\n\n`)
+    start(controller) {
+      const clientId = Date.now()
+      clients.set(clientId, controller)
 
-      // Increment after adding client
-      visits++
-      sendVisitsToAll()
-    },
-    cancel: () => {
-      if (streamController) {
-        clients.delete(streamController)
-      }
-    },
+      // Send initial count
+      controller.enqueue(`data: ${JSON.stringify({ visits: ++visits })}\n\n`)
+
+      // Notify other clients about the new visitor
+      clients.forEach((client, id) => {
+        if (id !== clientId) {
+          try {
+            client.enqueue(`data: ${JSON.stringify({ visits })}\n\n`)
+          } catch (error) {
+            clients.delete(id)
+          }
+        }
+      })
+    }
   })
 
   return new NextResponse(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      'Connection': 'keep-alive',
-    },
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }
   })
 }
