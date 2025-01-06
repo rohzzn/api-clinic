@@ -9,6 +9,27 @@ export const metadata = {
   description: 'A powerful API testing tool',
   icons: {
     icon: '/favicon.png',
+  },
+  openGraph: {
+    title: 'API Clinic',
+    description: 'A powerful and user-friendly API testing tool designed to simplify the process of testing and debugging APIs.',
+    url: 'https://api-clinic-nu.vercel.app',
+    siteName: 'API Clinic',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 627,
+        alt: 'API Clinic - API testing made easy'
+      }
+    ],
+    type: 'website'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'API Clinic',
+    description: 'A powerful and user-friendly API testing tool designed to simplify the process of testing and debugging APIs.',
+    images: ['/og-image.png']
   }
 }
 
