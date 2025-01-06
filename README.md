@@ -1,6 +1,7 @@
 # API Clinic
-
 API Clinic is a powerful and user-friendly API testing tool designed to simplify the process of testing and debugging APIs. It provides essential features for sending requests, inspecting responses, and managing environment variables, all within a clean and intuitive interface.
+
+![575_1x_shots_so](https://github.com/user-attachments/assets/4aaeab8c-24ad-45e5-b988-0051085dd774)
 
 ## Features
 
