@@ -6,23 +6,28 @@ export default function Footer() {
   const [visits, setVisits] = useState(0)
 
   useEffect(() => {
-    const fetchVisits = async () => {
-      try {
-        const res = await fetch('/api/visits')
-        const data = await res.json()
-        setVisits(data.visits)
-      } catch (error) {
-        console.error('Error fetching visit count:', error)
-      }
+    const eventSource = new EventSource('/api/visits')
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      setVisits(data.visits)
     }
 
-    fetchVisits()
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error)
+      eventSource.close()
+      
+      // Try to reconnect after 5 seconds
+      setTimeout(() => {
+        const newEventSource = new EventSource('/api/visits')
+        newEventSource.onmessage = eventSource.onmessage
+        newEventSource.onerror = eventSource.onerror
+      }, 5000)
+    }
 
-    // Set up an interval to fetch the visit count every 30 seconds
-    const intervalId = setInterval(fetchVisits, 30000)
-
-    // Clean up the interval on component unmount
-    return () => clearInterval(intervalId)
+    return () => {
+      eventSource.close()
+    }
   }, [])
 
   return (
@@ -35,4 +40,3 @@ export default function Footer() {
     </footer>
   )
 }
-
