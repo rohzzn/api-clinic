@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
 
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
+
 let visits = 0
 const clients = new Set<ReadableStreamDefaultController>()
 
@@ -47,7 +52,7 @@ export async function GET() {
   return new NextResponse(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      'Cache-Control': 'no-cache, no-transform',
       'Connection': 'keep-alive'
     }
   })
