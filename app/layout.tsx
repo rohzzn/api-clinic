@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
   title: 'API Clinic',
   description: 'A powerful API testing tool',
+  icons: {
+    icon: '/favicon.png',
+  }
 }
 
 export default function RootLayout({
@@ -23,7 +26,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
